@@ -88,6 +88,21 @@ class PedidoOut(BaseModel):
     detalle: list[DetalleOut]
 
 
+class PedidoResumen(BaseModel):
+    pedido_id: int
+    cliente_nombre: str
+    estado: EstadoPedido
+    total: float
+    fecha_creacion: datetime
+
+
+class PedidosPage(BaseModel):
+    items: list[PedidoResumen]
+    total: int
+    limit: int
+    offset: int
+
+
 class PedidoCreado(BaseModel):
     pedido_id: int
     estado: EstadoPedido

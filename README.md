@@ -63,7 +63,7 @@ El enunciado deja puntos abiertos o inconsistentes. Se listan los supuestos adop
 
 ### Alcance funcional
 
-1. **Actualización de estado de pedidos.** El escenario de negocio lo menciona pero no figura entre los endpoints requeridos. Se agrega un `PATCH /api/v1/pedidos/{id}/estado` mínimo para cerrar la brecha entre el escenario y los requerimientos técnicos.
+1. **Actualización de estado de pedidos.** El escenario de negocio lo menciona pero no figura entre los endpoints ni pantallas requeridos. Se agrega `GET /api/v1/pedidos` (listado con filtro por estado), `PATCH /api/v1/pedidos/{id}/estado` y una quinta pantalla en la app (Pedidos → Detalle) para que el operador avance el ciclo de vida o cancele (reponiendo stock) desde el dispositivo.
 2. **Métricas.** La vista `vw_ResumenVentasDiarias` se pide "optimizada para consumo desde el backend", pero no hay endpoint asociado. Se expone `GET /api/v1/metricas` que la consume y el Dashboard muestra los indicadores clave.
 3. **"Tiempo real".** Se interpreta como consistencia inmediata de datos on-demand (stock actualizado atómicamente al registrar pedidos), no como push/websockets. Notificaciones en tiempo real quedan como evolución futura, fuera del alcance de un PoC de 12-16 hs.
 4. **Clientes ≠ Usuarios.** El usuario es el operador que se autentica; el cliente es quien recibe el pedido. Se modela una quinta tabla `Clientes` (el mínimo de 4 tablas lo permite), coherente con la vista que consolida ventas por cliente. Se expone además `GET /api/v1/clientes` (no estaba en el enunciado): `POST /pedidos` exige `cliente_id` y el formulario móvil necesita ofrecer las opciones.
@@ -73,7 +73,7 @@ El enunciado deja puntos abiertos o inconsistentes. Se listan los supuestos adop
 
 6. **FastAPI** (el enunciado alterna entre FastAPI/DRF y FastAPI/Flask): es el único framework mencionado en ambas secciones, integra Pydantic nativamente (validación exigida) y genera documentación OpenAPI automática.
 7. **Acceso a datos híbrido:** SQLAlchemy sobre `pyodbc` para lecturas; llamada directa al stored procedure `sp_RegistrarPedido` para la creación de pedidos. La lógica transaccional vive en el SP (como exige el enunciado) y el backend la respeta sin duplicarla.
-8. **BLoC** como gestor de estado en Flutter: aunque para un PoC de 4 pantallas Riverpod tendría menos boilerplate, se prioriza dejar la base lista para escalar — el patrón evento→estado da trazabilidad completa de las interacciones, es el estándar más extendido en equipos grandes (onboarding más simple) y separa por contrato la UI de la lógica de negocio. El costo extra de ceremonia se acepta como inversión.
+8. **BLoC** como gestor de estado en Flutter: aunque para un PoC pequeño Riverpod tendría menos boilerplate, se prioriza dejar la base lista para escalar — el patrón evento→estado da trazabilidad completa de las interacciones, es el estándar más extendido en equipos grandes (onboarding más simple) y separa por contrato la UI de la lógica de negocio. El costo extra de ceremonia se acepta como inversión.
 9. **`flutter_secure_storage`** para el JWT: `shared_preferences` almacena en texto plano y contradice el énfasis del enunciado en seguridad.
 10. **Paginación Y filtro** en `GET /api/v1/productos` (el "o" del enunciado permitía uno solo): el filtro es obligatorio de facto por la pantalla de búsqueda, y la paginación tiene costo marginal mínimo.
 11. **Docker no-opcional en la práctica:** `docker-compose.yml` levanta SQL Server 2022 + backend y ejecuta los scripts SQL en orden, para que la evaluación sea reproducible con un comando.
@@ -99,7 +99,7 @@ El enunciado deja puntos abiertos o inconsistentes. Se listan los supuestos adop
 ```mermaid
 flowchart LR
     subgraph Movil["App Flutter (mobile/)"]
-        UI["Pantallas<br/>login · dashboard · pedido · confirmación"]
+        UI["Pantallas<br/>login · dashboard · pedido · confirmación · pedidos"]
         BLOC["Blocs<br/>evento → estado"]
         REPO["Repositorios"]
         DIO["ApiClient (dio)<br/>JWT desde secure storage"]

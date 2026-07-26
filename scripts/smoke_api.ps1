@@ -102,6 +102,13 @@ $st = StatusOf { Invoke-RestMethod -Method Patch -Uri "$base/pedidos/$($pedido.p
     -ContentType "application/json" -Body (@{ estado = "Volando" } | ConvertTo-Json) }
 Check "estado invalido -> 400" ($st -eq 400)
 
+# 16a. Listado de pedidos (paginado, mas reciente primero) + filtro por estado
+$lista = Invoke-RestMethod -Uri "$base/pedidos?limit=10" -Headers $h
+Check "listado de pedidos con items" ($lista.total -ge 5 -and $lista.items.Count -ge 5)
+Check "listado ordenado desc por id" ($lista.items[0].pedido_id -gt $lista.items[-1].pedido_id)
+$cancelados = Invoke-RestMethod -Uri "$base/pedidos?estado=Cancelado" -Headers $h
+Check "filtro por estado Cancelado" ($cancelados.items.Count -ge 1 -and ($cancelados.items | Where-Object { $_.estado -ne "Cancelado" }).Count -eq 0)
+
 # 16b. Clientes activos (para el formulario de pedido)
 $clientes = Invoke-RestMethod -Uri "$base/clientes" -Headers $h
 Check "clientes activos listados" ($clientes.Count -ge 5 -and $clientes[0].nombre.Length -gt 0)

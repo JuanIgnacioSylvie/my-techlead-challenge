@@ -1,13 +1,70 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.errors import AppError, map_db_error
-from app.schemas import EstadoUpdate, PedidoCreado, PedidoCreate, PedidoOut, DetalleOut
+from app.schemas import (
+    DetalleOut,
+    EstadoPedido,
+    EstadoUpdate,
+    PedidoCreado,
+    PedidoCreate,
+    PedidoOut,
+    PedidoResumen,
+    PedidosPage,
+)
 from app.security import get_current_user
 
 router = APIRouter(prefix="/pedidos", tags=["pedidos"])
+
+
+@router.get("", response_model=PedidosPage)
+def listar_pedidos(
+    estado: EstadoPedido | None = Query(default=None, description="Filtrar por estado"),
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db),
+    _user: dict = Depends(get_current_user),
+) -> PedidosPage:
+    """Listado para la pantalla de pedidos de la app (más reciente primero)."""
+    filtro = "AND p.Estado = :estado" if estado else ""
+    params: dict = {"limit": limit, "offset": offset}
+    if estado:
+        params["estado"] = estado.value
+
+    total = db.execute(
+        text(f"SELECT COUNT(*) FROM dbo.Pedidos p WHERE 1=1 {filtro}"),
+        params,
+    ).scalar_one()
+
+    rows = db.execute(
+        text(
+            f"""
+            SELECT p.PedidoId, c.Nombre AS ClienteNombre, p.Estado, p.Total, p.FechaCreacion
+            FROM dbo.Pedidos p
+            INNER JOIN dbo.Clientes c ON c.ClienteId = p.ClienteId
+            WHERE 1=1 {filtro}
+            ORDER BY p.PedidoId DESC
+            OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
+            """
+        ),
+        params,
+    ).mappings().all()
+
+    items = [
+        PedidoResumen(
+            pedido_id=r["PedidoId"],
+            cliente_nombre=r["ClienteNombre"],
+            estado=r["Estado"],
+            total=r["Total"],
+            fecha_creacion=r["FechaCreacion"],
+        )
+        for r in rows
+    ]
+
+    return PedidosPage(items=items, total=total, limit=limit, offset=offset)
 
 
 def _obtener_pedido(pedido_id: int, db: Session) -> PedidoOut:

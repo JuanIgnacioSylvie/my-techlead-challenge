@@ -112,6 +112,119 @@ class PedidoCreado extends Equatable {
   List<Object?> get props => [pedidoId];
 }
 
+class PedidoResumen extends Equatable {
+  final int pedidoId;
+  final String clienteNombre;
+  final String estado;
+  final double total;
+  final DateTime fechaCreacion;
+
+  const PedidoResumen({
+    required this.pedidoId,
+    required this.clienteNombre,
+    required this.estado,
+    required this.total,
+    required this.fechaCreacion,
+  });
+
+  factory PedidoResumen.fromJson(Map<String, dynamic> json) => PedidoResumen(
+        pedidoId: json['pedido_id'] as int,
+        clienteNombre: json['cliente_nombre'] as String,
+        estado: json['estado'] as String,
+        total: _asDouble(json['total']),
+        fechaCreacion: DateTime.parse(json['fecha_creacion'] as String),
+      );
+
+  @override
+  List<Object?> get props => [pedidoId, estado, total];
+}
+
+class PedidosPage extends Equatable {
+  final List<PedidoResumen> items;
+  final int total;
+
+  const PedidosPage({required this.items, required this.total});
+
+  factory PedidosPage.fromJson(Map<String, dynamic> json) => PedidosPage(
+        items: (json['items'] as List)
+            .map((e) => PedidoResumen.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        total: json['total'] as int,
+      );
+
+  @override
+  List<Object?> get props => [items, total];
+}
+
+class RenglonPedido extends Equatable {
+  final int productoId;
+  final String sku;
+  final String nombre;
+  final int cantidad;
+  final double precioUnitario;
+  final double subtotal;
+
+  const RenglonPedido({
+    required this.productoId,
+    required this.sku,
+    required this.nombre,
+    required this.cantidad,
+    required this.precioUnitario,
+    required this.subtotal,
+  });
+
+  factory RenglonPedido.fromJson(Map<String, dynamic> json) => RenglonPedido(
+        productoId: json['producto_id'] as int,
+        sku: json['sku'] as String,
+        nombre: json['nombre'] as String,
+        cantidad: json['cantidad'] as int,
+        precioUnitario: _asDouble(json['precio_unitario']),
+        subtotal: _asDouble(json['subtotal']),
+      );
+
+  @override
+  List<Object?> get props => [productoId, cantidad];
+}
+
+class PedidoDetalle extends Equatable {
+  final int pedidoId;
+  final String clienteNombre;
+  final String usuarioNombre;
+  final String estado;
+  final double total;
+  final DateTime fechaCreacion;
+  final DateTime fechaActualizacion;
+  final List<RenglonPedido> renglones;
+
+  const PedidoDetalle({
+    required this.pedidoId,
+    required this.clienteNombre,
+    required this.usuarioNombre,
+    required this.estado,
+    required this.total,
+    required this.fechaCreacion,
+    required this.fechaActualizacion,
+    required this.renglones,
+  });
+
+  factory PedidoDetalle.fromJson(Map<String, dynamic> json) => PedidoDetalle(
+        pedidoId: json['pedido_id'] as int,
+        clienteNombre: json['cliente_nombre'] as String,
+        usuarioNombre: json['usuario_nombre'] as String,
+        estado: json['estado'] as String,
+        total: _asDouble(json['total']),
+        fechaCreacion: DateTime.parse(json['fecha_creacion'] as String),
+        fechaActualizacion:
+            DateTime.parse(json['fecha_actualizacion'] as String),
+        renglones: (json['detalle'] as List)
+            .map((e) => RenglonPedido.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+
+  @override
+  List<Object?> get props => [pedidoId, estado, fechaActualizacion];
+}
+
 class ResumenEstado extends Equatable {
   final String estado;
   final int cantidadPedidos;

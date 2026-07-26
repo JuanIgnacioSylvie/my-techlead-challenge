@@ -7,6 +7,7 @@ import '../../data/repositories.dart';
 import '../login/auth_bloc.dart';
 import '../login/login_screen.dart';
 import '../pedido/pedido_screen.dart';
+import '../pedidos/pedidos_screen.dart';
 import 'dashboard_bloc.dart';
 
 /// Pantalla 2: catálogo con búsqueda + métricas de operación.
@@ -63,6 +64,23 @@ class _DashboardViewState extends State<_DashboardView> {
         title: Text(
             sesion == null ? 'Catálogo' : 'Hola, ${sesion.nombreCompleto}'),
         actions: [
+          IconButton(
+            tooltip: 'Pedidos',
+            icon: const Icon(Icons.receipt_long_outlined),
+            onPressed: () async {
+              final bloc = context.read<DashboardBloc>();
+              final busqueda = switch (bloc.state) {
+                DashboardLoaded(:final busqueda) => busqueda,
+                _ => '',
+              };
+              await Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const PedidosScreen()),
+              );
+              // Al volver: un cambio de estado (p.ej. cancelar) pudo
+              // alterar stock y métricas.
+              bloc.add(DashboardRequested(busqueda: busqueda));
+            },
+          ),
           IconButton(
             tooltip: 'Cerrar sesión',
             icon: const Icon(Icons.logout),

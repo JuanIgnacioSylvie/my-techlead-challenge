@@ -29,4 +29,26 @@ class EstadoPedidoUi {
   factory EstadoPedidoUi.de(String estado) =>
       _porEstado[estado] ??
       EstadoPedidoUi._(estado, const Color(0xFF616161), Icons.help_outline, 99);
+
+  /// Valores técnicos que entiende la API, en orden de ciclo de vida.
+  static const valores = [
+    'Pendiente',
+    'EnPreparacion',
+    'Enviado',
+    'Entregado',
+    'Cancelado',
+  ];
+
+  /// Siguiente estado del ciclo de vida, o null si es terminal.
+  /// Espeja las reglas de sp_ActualizarEstadoPedido.
+  static String? siguiente(String estado) => switch (estado) {
+        'Pendiente' => 'EnPreparacion',
+        'EnPreparacion' => 'Enviado',
+        'Enviado' => 'Entregado',
+        _ => null,
+      };
+
+  /// El SP rechaza cancelar entregados y tocar cancelados.
+  static bool puedeCancelar(String estado) =>
+      estado != 'Entregado' && estado != 'Cancelado';
 }

@@ -67,6 +67,30 @@ class PedidosRepository {
     );
     return PedidoCreado.fromJson(data as Map<String, dynamic>);
   }
+
+  Future<PedidosPage> listar({String? estado, int limit = 50}) async {
+    final data = await api.get(
+      '$_prefix/pedidos',
+      query: {
+        'limit': limit,
+        if (estado != null) 'estado': estado,
+      },
+    );
+    return PedidosPage.fromJson(data as Map<String, dynamic>);
+  }
+
+  Future<PedidoDetalle> detalle(int pedidoId) async {
+    final data = await api.get('$_prefix/pedidos/$pedidoId');
+    return PedidoDetalle.fromJson(data as Map<String, dynamic>);
+  }
+
+  Future<PedidoDetalle> actualizarEstado(int pedidoId, String estado) async {
+    final data = await api.patch(
+      '$_prefix/pedidos/$pedidoId/estado',
+      body: {'estado': estado},
+    );
+    return PedidoDetalle.fromJson(data as Map<String, dynamic>);
+  }
 }
 
 class MetricasRepository {

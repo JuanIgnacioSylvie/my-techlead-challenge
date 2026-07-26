@@ -7,7 +7,8 @@
 //     ├── login/         # 1. Login (AuthBloc)
 //     ├── dashboard/     # 2. Catálogo + búsqueda + métricas (DashboardBloc)
 //     ├── pedido/        # 3. Formulario de pedido (PedidoBloc)
-//     └── confirmacion/  # 4. Éxito/error de la transacción
+//     ├── confirmacion/  # 4. Éxito/error de la transacción
+//     └── pedidos/       # 5. Listado + detalle/cambio de estado (PedidosBloc)
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
