@@ -1,0 +1,26 @@
+name: mobile
+description: App de gestión de pedidos e inventario para operadores de campo.
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Estado (supuesto #8 del README): BLoC por escalabilidad y trazabilidad
+  flutter_bloc: ^9.0.0
+  equatable: ^2.0.5
+  # HTTP
+  dio: ^5.7.0
+  # Almacenamiento seguro del JWT (supuesto #9 del README)
+  flutter_secure_storage: ^9.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
