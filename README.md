@@ -137,4 +137,6 @@ flowchart LR
 
 ## Demo
 
-_(Link al video con demo y explicación del sistema — completar al finalizar.)_
+Video con demo del sistema y explicación de arquitectura, decisiones, supuestos, uso de IA y deuda técnica:
+
+https://www.youtube.com/watch?v=HFDN-qGAQPU
